@@ -21,6 +21,7 @@ import io.confluent.kafka.schemaregistry.avro.AvroSchemaUtils;
 import io.confluent.kafka.schemaregistry.avro.AvroUtils;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
 import io.confluent.kafka.schemaregistry.client.rest.entities.Schema;
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaRegistryVersion;
 import io.confluent.kafka.schemaregistry.client.rest.entities.ServerClusterId;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference;
 import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaString;
@@ -30,6 +31,7 @@ import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientExcept
 import io.confluent.kafka.schemaregistry.rest.exceptions.Errors;
 import io.confluent.kafka.schemaregistry.rest.exceptions.RestInvalidSubjectException;
 import io.confluent.kafka.schemaregistry.rest.exceptions.RestInvalidVersionException;
+import io.confluent.kafka.schemaregistry.utils.AppInfoParser;
 import io.confluent.kafka.schemaregistry.utils.TestUtils;
 
 import org.apache.avro.Schema.Parser;
@@ -1791,6 +1793,17 @@ public class RestApiTest extends ClusterTestHarness {
       assertEquals("", serverClusterId.getId());
       assertEquals(Collections.emptyList(), serverClusterId.getScope().get("path"));
       assertNotNull(serverClusterId.getScope().get("clusters"));
+    } catch (RestClientException rce) {
+      fail("The operation shouldn't have failed");
+    }
+  }
+
+  @Test
+  public void testGetSRVersion() throws Exception {
+    try {
+      SchemaRegistryVersion srVersion = restApp.restClient.getSchemaRegistryVersion();
+      assertEquals(AppInfoParser.getVersion(), srVersion.getVersion());
+      assertEquals(AppInfoParser.getCommitId(), srVersion.getCommitId());
     } catch (RestClientException rce) {
       fail("The operation shouldn't have failed");
     }
